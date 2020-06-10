@@ -24,5 +24,82 @@
 ---
 ### 接下来我们用代码的方式来模拟实现一下，加深一下理解
 ```
-//
+let callbacks = [];
+let pending = false;
+
+function flushCallbacks () {
+  pending = false;
+
+  // 这里拷贝的原因是：
+  // 有的cb 执行过程中又会往callbacks中加入内容
+  // 比如 $nextTick的回调函数里还有$nextTick
+  // 后者的应该放到下一轮的nextTick 中执行
+  // 所以拷贝一份当前的，遍历执行完当前的即可，避免无休止的执行下去
+  const copies = callbacks.slice(0);
+  callbacks.length = 0;
+  for(let i = 0; i < copies.length; i++) {
+    copies[i]();
+  }
+}
+
+function nextTick(cb) {
+  callbacks.push(cb);
+
+  if(!pending) {
+    pending = true;
+    setTimeout(flushCallbacks, 0);
+  }
+}
+
+//Watcher需要一个id标识唯一性，避免重复添加
+let uid = 0;
+
+class Watcher {
+  constructor() {
+    this.id = ++uid;
+  }
+
+  update() {
+    queueWatcher(this); //将当前Watcher添加至队列中，等待更新
+  }
+
+  run() {
+    console.log(`watch${this.id}视图更新了`)
+  }
+}
+
+//使用一个has的map,里面存放id-> true(false)形式，用来判断是否存在相同的Watcher，提高效率
+let has = {}
+let queue = [];
+let waiting = false;
+
+function queueWatcher(watcher) {
+  const id = watcher.id;
+
+  if(has.id == null) {
+    has.id = true;
+    queue.push(watcher);
+
+    if(!waiting) {
+      waiting = true;
+
+      nextTick(flushSchedulerQueue)
+    }
+  }
+}
+
+//逐一调用各个Watcher的run方法，更新视图
+function flushSchedulerQueue() {
+  let watcher, id;
+
+  for(let index = 0; index < queue.length; i++) {
+    watcher = queue[i];
+    id = watcher.id;
+    has[id] = null;
+
+    watcher.run();
+  }
+
+  waiting = fasle;
+}
 ```
