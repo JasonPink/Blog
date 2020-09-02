@@ -75,4 +75,90 @@ setInterval(tick, 1000);
 ```
 ---
 ## 组件&Props
-    组件，从概念上类似与JavaScript函数。它接受任意的入参，并返回用于
+    组件，从概念上类似与JavaScript函数。它接受任意的入参，并返回用于描述页面展示内容的React元素
+### 函数组件与class组件
+```
+//这类组件被称为函数组件，因为它本质上就是JavaScript函数
+function Welcome(props) {
+  return <h1>Hello, {props.name}</h1>
+}
+//ES6的class来定义组件
+class Welcome extends React.Component {
+  render() {
+    return <h1>Hello, {this.props.name}</h1>
+  }
+}
+```
+---
+### 渲染组件
+```
+function Welcome(props) {
+  return <h1>Hello, {props.name}</h1>
+}
+
+const element = <Welcome name="yemeng">
+
+React.render(
+  element,
+  document.getElementById('root')
+)
+```
+---
+### 组合组件
+```
+function Welcome(props) {
+  return <h1>Hello, {props.name}</h1>
+}
+
+function App() {
+  return (
+    <div>
+      <Welcome name="yemeng">
+      <Welcome name="yetao">
+      <Welcome name="jack">
+    </div>
+  )
+}
+
+React.render(
+  <App />,
+  document.getElementById('root')
+)
+```
+---
+## 所有React组件都必须像纯函数一样保护它们的props不被更改
+---
+## 条件渲染
+```
+function UserGreeting(props) {
+  return <h1>Welcome back!</h1>
+}
+
+function GuestGreeting(props) {
+  return <h1>Please sign up!</h1>
+}
+
+function Greeting(props) {
+  const isLoggedIn = props.isLoggedIn;
+  return isLoggedIn ? <UserGreeting /> : <GuestGreeting />
+}
+
+ReactDOM.render(
+  <Greeting isLoggedIn={false} />,
+  document.getElementById('root')
+)
+```
+---
+## 元素变量：使用变量来储存元素
+### 渲染多个组件
+```
+const numbers = [1, 2, 3, 4, 5];
+const listItems = numbers.map((number) =>
+  <li>{number}</li>
+);
+
+ReactDOM.render(
+  <ul>{listItems}</ul>,
+  document.getElementById('root')
+);
+```
